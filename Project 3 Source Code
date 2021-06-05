@@ -1,0 +1,107 @@
+//Returns true if the coin function parameter is a valid coin value of either 1, 5, 10, 25, 50, or 100
+//Must use the array indexOf() method, and !== equality operator
+//This function can be coded to be a single line of code
+//validDenomination(coin):
+function validDenomination(coin) {let valid = [1, 5, 10, 25, 50, 100]; return false !== valid.indexOf(coin) >= 0; }
+//console.log(validDenomination(5));
+
+//Returns the calculated value of a single coin object from the obj function parameter
+//Must use object deconstruction to create constant variables denom and count 
+//from the obj function parameter, using default object values of 0 for denom and count
+//valueFromCoinObject(obj):
+
+function valueFromCoinObject(obj) {
+    const { denom = 0, count = 0} = obj
+    return denom * count;
+}
+
+//samTest = {
+   // denom: 5,
+   // count: 3
+//};
+
+//console.log(valueFromCoinObject(samTest));
+
+//Iterates through an array of coin objects and returns the final calculated value of all coin objects
+//Must use Array.reduce() method, and an arrow function with the Array.reduce() method
+//Must call valueFromCoinObject()
+//Extra credit: Handle scenario where the arr function parameter, rather than 
+//an array of coin objects, contains another array of coin objects
+//valueFromArray(arr):
+
+function valueFromArray(arr) {
+    return arr.reduce((total, currentValue) => {
+        return total + valueFromCoinObject(currentValue)},0);
+}
+
+//console.log(
+//    valueFromArray([
+  //      {denom: 5, count: 3},
+  //      {denom: 25, count: 2},
+//  ]));
+
+//This function is the only exported function from the code module
+//Calls and returns the result of valueFromArray() function, which 
+//will be the value of all coin objects with the coinage array function parameter
+//coinCount(...coinage):
+
+function coinCount(...coinage) {
+    return valueFromArray(coinage); 
+}
+
+//console.log("BOTTOM");
+console.log("{}", coinCount({denom: 5, count: 3}));
+console.log("{}s", coinCount({denom: 5, count: 3},{denom: 10, count: 2}));
+const coins = [{denom: 25, count: 2},{denom: 1, count: 7}];
+console.log("...[{}]", coinCount(...coins));
+console.log("[{}]", coinCount(coins));  // Extra credit//Update web server code to import Fastify and fs packages, and coinCount function
+const fs = require("fs");
+const fastify = require("fastify")();
+const {coinCount} = require("../p3/p3-module.js");
+
+//Add / route with GET verb, and web server listen
+fastify.get("/", (request, reply) => {
+    fs.readFile(`${__dirname}/index.html`, (error, data) => {
+      if(error) {
+        reply 
+        .code(500)
+        .header("Content-Type", "text/html; charset=utf-8")
+        .send("<h1>Error occured</h1>");
+      } else {
+        reply 
+        .code(200)
+        .header("Content-Type", "text/html; charset=utf-8")
+        .send("<h1>No error occured</h1>");
+      }})
+});
+ 
+// Start server and listen to requests using Fastify
+const listenIP = "localhost";
+const listenPort = 8080;
+fastify.listen(listenPort, listenIP, (err, address) => {
+  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
+  console.log(`Server listening on http://${listenIP}:${listenPort}/`);
+});
+
+
+//Add /coin route with GET verb
+fastify.get("/coin", (request, reply) => {
+  const { denom = 0, count = 0} = request.query;
+  const coinCalculation = coinCount({
+    denom:parseInt(denom), 
+    count:parseInt(count)});
+
+  reply 
+        .code(200)
+        .header("Content-Type", "text/html; charset=utf-8")
+        .send(`<h2>Value of ${count} of ${denom} is ${coinValue}</h2><br /><a href="/">Home</a>`);
+});
+
+coinCount({ denom: 5, count: 3 }, { denom: 10, count: 2 });   // option = 1
+coinCount(...coins);    // option = 2
+coinCount(coins);    // Extra credit: option = 3
+
+`<h2>Option ${option} value is ${coinValue}</h2><br /><a href="/">Home</a>`
